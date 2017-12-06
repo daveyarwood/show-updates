@@ -1,4 +1,5 @@
 (ns show-updates.migrate
+  "Database migration setup."
   (:require [migratus.core :as migratus]))
 
 (defn db-config

@@ -1,4 +1,5 @@
 (ns show-updates.database
+  "Database helper functions."
   (:require [clojure.java.jdbc :as sql]))
 
 (def ^:dynamic *db* nil)

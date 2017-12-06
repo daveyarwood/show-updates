@@ -1,4 +1,5 @@
 (ns show-updates.api
+  "A REST API for interacting with the local database and TVmaze API."
   (:require [show-updates.database :as db]
             [show-updates.tvmaze   :as tv]
             [yada.yada             :as yada]))
