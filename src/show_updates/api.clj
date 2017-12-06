@@ -20,7 +20,8 @@
         {:strs [id name premiered]} (tv/show tvmazeid)
         record                      {:tvmazeid  id
                                      :name      name
-                                     :bookmark  (-> (f/parse premiered)
+                                     :bookmark  (-> (f/parse (or premiered
+                                                                 "1900-02-01"))
                                                     (t/minus (t/days 1)))}]
     (db/insert! :show record)
     record))

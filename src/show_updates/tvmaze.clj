@@ -2,6 +2,8 @@
   "A library of functions that use the TVmaze API to obtain information needed
    by our application."
   (:require [clj-http.client :as http]
+            [clj-time.core   :as t]
+            [clj-time.format :as f]
             [cheshire.core   :as json]))
 
 (def ^:constant TVMAZE-API-BASE "https://api.tvmaze.com")
@@ -26,7 +28,7 @@
       json/parse-string
       (select-keys ["id" "name" "summary" "image" "premiered"])))
 
-(defn episodes
+(defn all-episodes
   [show-id]
   (as-> show-id x
     (http/get (route "/shows/%s/episodes" x) {:query-params {"specials" 1}})
@@ -36,3 +38,18 @@
       (select-keys episode ["season" "number" "airdate"
                             "name" "summary" "image"]))))
 
+(defn unwatched-episodes
+  "Returns a list of episodes that have not been watched, given a bookmark
+   DateTime representing the date at which point all episodes before that have
+   been watched.
+
+   Filters out episodes that haven't aired yet."
+  [show-id bookmark]
+  (->> (all-episodes show-id)
+       (filter (fn [{:strs [airdate]}]
+                 ;; If "airdate" is missing, filter it out by setting it to a
+                 ;; date earlier than the bookmark can be.
+                 (let [air-date (f/parse (or airdate "1900-01-01"))]
+                   (and (t/after? air-date bookmark)
+                        (t/before? air-date (t/now))))))
+       (sort-by #(get % "airdate"))))
