@@ -24,7 +24,7 @@
   (-> (http/get (route "/shows/%s" id))
       :body
       json/parse-string
-      (select-keys ["id" "name" "summary" "image"])))
+      (select-keys ["id" "name" "summary" "image" "premiered"])))
 
 (defn episodes
   [show-id]

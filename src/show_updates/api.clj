@@ -1,6 +1,8 @@
 (ns show-updates.api
   "A REST API for interacting with the local database and TVmaze API."
-  (:require [show-updates.database :as db]
+  (:require [clj-time.core         :as t]
+            [clj-time.format       :as f]
+            [show-updates.database :as db]
             [show-updates.tvmaze   :as tv]
             [yada.yada             :as yada]))
 
@@ -14,9 +16,12 @@
 
 (defn add-show!
   [{:keys [parameters] :as ctx}]
-  (let [{:keys [tvmazeid]} (:body parameters)
-        {:strs [id name]}  (tv/show tvmazeid)
-        record             {:tvmazeid id :name name}]
+  (let [{:keys [tvmazeid]}          (:body parameters)
+        {:strs [id name premiered]} (tv/show tvmazeid)
+        record                      {:tvmazeid  id
+                                     :name      name
+                                     :bookmark  (-> (f/parse premiered)
+                                                    (t/minus (t/days 1)))}]
     (db/insert! :show record)
     record))
 

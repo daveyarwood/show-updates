@@ -1,5 +1,6 @@
 (ns scratch
-  (:require [show-updates.api      :as api]
+  (:require [clj-time.format       :as f]
+            [show-updates.api      :as api]
             [show-updates.database :as db]
             [show-updates.migrate  :as migrate]
             [show-updates.tvmaze   :as tv]))
@@ -15,13 +16,19 @@
   "Populates database with test data."
   []
   (db/execute! "DELETE FROM show")
-  (db/insert! :show {:name "The Walking Dead" :tvmazeid 73})
-  (db/insert! :show {:name "Gilmore Girls" :tvmazeid 525}))
+  (db/insert! :show {:name "The Walking Dead"
+                     :tvmazeid 73
+                     :bookmark (f/parse "2010-10-30")})
+  (db/insert! :show {:name "Gilmore Girls"
+                     :tvmazeid 525
+                     :bookmark (f/parse "2000-10-04")}))
 
 (comment
   (init!)
   (seed-db!)
   (db/query "SELECT * FROM show")
+  (tv/show 525)
+  (tv/show 73)
   (tv/show-search "Gilmore Girls")
   (api/shows {})
   (api/add-show! {:parameters {:body {:tvmazeid 12345}}})
