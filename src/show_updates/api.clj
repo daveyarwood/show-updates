@@ -7,6 +7,10 @@
   [ctx]
   (db/query "SELECT name,tvmazeid FROM show"))
 
+(defn show-search
+  [ctx]
+  (tv/show-search (get-in ctx [:parameters :query :query])))
+
 (defn add-show!
   [{:keys [parameters] :as ctx}]
   (let [{:keys [tvmazeid]} (:body parameters)
@@ -23,6 +27,12 @@
                     {:get
                      {:produces "application/json"
                       :response shows}}})]
+    ["/show-search" (yada/resource
+                      {:methods
+                       {:get
+                        {:parameters {:query {:query String}}
+                         :produces "application/json"
+                         :response show-search}}})]
     ["/add-show" (yada/resource
                    {:methods
                     {:put
