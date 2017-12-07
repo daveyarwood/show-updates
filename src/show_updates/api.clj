@@ -16,13 +16,14 @@
 
 (defn add-show!
   [{:keys [parameters] :as ctx}]
-  (let [{:keys [tvmazeid]}          (:body parameters)
-        {:strs [id name premiered]} (tv/show tvmazeid)
-        record                      {:tvmazeid  id
-                                     :name      name
-                                     :bookmark  (-> (f/parse (or premiered
-                                                                 "1900-02-01"))
-                                                    (t/minus (t/days 1)))}]
+  (let [{:keys [tvmazeid]}                        (:body parameters)
+        {:strs [id name summary premiered image]} (tv/show tvmazeid)
+        record {:tvmazeid id
+                :name     name
+                :summary  summary
+                :bookmark (-> (f/parse (or premiered "1900-02-01"))
+                              (t/minus (t/days 1)))
+                :imageurl (get image "medium")}]
     (db/insert! :show record)
     record))
 
