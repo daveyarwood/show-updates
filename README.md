@@ -38,8 +38,8 @@ Keeping notes here in the README.
     * `bookmark` (a Unix timestamp representing the date of the last episode
       we watched)
       * any episode aired after this timestamp is considered unwatched
-    * Can also add `image` (an external URL), `summary`, and other information
-      about the show available via the TVmaze API.
+    * `imageurl` (an external URL provided by the TVmaze API)
+    * `summary` (provided by TVmaze API)
   * `episode` table (any record in this table is an unwatched episode)
     * `showid` (the show's ID from the TVmaze database)
       * can query for unwatched episodes by joining on this column
@@ -48,8 +48,7 @@ Keeping notes here in the README.
     * `airdate` (integer)
     * `name`
     * `summary`
-    * `image` (an external URL) also available, among other information from
-      TVmaze API
+    * `imageurl` (an external URL)
   * `email` table
     * records in this table represent email addresses to notify when there are
       new episodes
