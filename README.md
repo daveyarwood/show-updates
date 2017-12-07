@@ -33,8 +33,6 @@ Keeping notes here in the README.
   * Keeps track of shows we watch, how caught up we are, and any new episodes
     available since we last watched the show.
   * `show` table
-    * `id` (not useful, can maybe be dropped? `tvmazeid` could be the primary
-      key instead)
     * `name` (from TVmaze database)
     * `tvmazeid` (the show's ID from the TVmaze database)
     * `bookmark` (a Unix timestamp representing the date of the last episode
