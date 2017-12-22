@@ -1,0 +1,3 @@
+{:require  [show-updates.app]
+ :init-fns [show-updates.app/init]
+ :compiler-options {:asset-path "js/app.out"}}

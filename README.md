@@ -22,10 +22,8 @@ Keeping notes here in the README.
   building comprehensive web APIs in Clojure. This is my first time using yada,
   and I'm finding it quite novel and refreshing.
 
-* I'm not sure yet what technology I want to use to build the web frontend.
-  I'm considering Hoplon, vs. exploring a ClojureScript React wrapper library of
-  some kind. Hoplon would be easiest, since I already know how to use it and I'm
-  happy with it.
+* I'm experimenting with [re-frame](https://github.com/Day8/re-frame) for the
+  web frontend.
 
 ## Implementation notes
 
