@@ -8,7 +8,7 @@
 
 (defn shows
   [ctx]
-  (db/query "SELECT name,tvmazeid FROM show"))
+  (db/query "SELECT name,tvmazeid,bookmark,imageurl FROM show"))
 
 (defn show-search
   [ctx]
@@ -27,27 +27,32 @@
     (db/insert! :show record)
     record))
 
+(defn public-resource
+  "Returns a yada resource with CORS configured to allow access to all origins."
+  [m]
+  (yada/resource (merge m {:access-control {:allow-origin "*"}})))
+
 (def routes
   [""
    [
-    ["/shows"    (yada/resource
-                   {:methods
-                    {:get
-                     {:produces "application/json"
-                      :response shows}}})]
-    ["/show-search" (yada/resource
+    ["/shows"       (public-resource
+                      {:methods
+                       {:get
+                        {:produces "application/json"
+                         :response shows}}})]
+    ["/show-search" (public-resource
                       {:methods
                        {:get
                         {:parameters {:query {:query String}}
                          :produces "application/json"
                          :response show-search}}})]
-    ["/add-show" (yada/resource
-                   {:methods
-                    {:put
-                     {:parameters {:body {:tvmazeid Long}}
-                      :consumes   "application/json"
-                      :produces   "application/json"
-                      :response   add-show!}}})]
+    ["/add-show"    (public-resource
+                      {:methods
+                       {:put
+                        {:parameters {:body {:tvmazeid Long}}
+                         :consumes   "application/json"
+                         :produces   "application/json"
+                         :response   add-show!}}})]
     ]])
 
 (defn start-server!

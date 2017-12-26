@@ -6,6 +6,7 @@
                     [adzerk/boot-reload        "0.5.2"     :scope "test"]
                     [clj-http                  "3.7.0"                  ]
                     [com.cemerick/piggieback   "0.2.2"     :scope "test"]
+                    [day8.re-frame/http-fx     "0.1.4"                  ]
                     [migratus                  "1.0.2"                  ]
                     [org.clojure/clojure       "1.9.0"                  ]
                     [org.clojure/clojurescript "1.9.946"                ]
@@ -23,11 +24,19 @@
   '[adzerk.boot-cljs-repl :refer (cljs-repl start-repl)]
   '[adzerk.boot-reload    :refer (reload)]
   '[pandeiro.boot-http    :refer (serve)]
+  '[show-updates.api      :as    api]
+  '[show-updates.database :as    db]
   '[show-updates.migrate  :as    migrate])
 
 (deftask migrate
   [f db-file DBFILE str "The SQLite database file. (Will be created if it doesn't exist.)"]
   (migrate/migrate! db-file))
+
+(deftask initialize-db
+  [f db-file DBFILE str "The SQLite database file. (Will be created if it doesn't exist.)"]
+  (with-pass-thru _
+    (migrate/migrate! db-file)
+    (db/set-db-file! db-file)))
 
 (deftask build
   "This task contains all the necessary steps to produce a build
@@ -38,12 +47,21 @@
         ,,,
         (cljs)))
 
+(deftask serve-backend
+  "Serves the backend."
+  [f db-file DBFILE str "The SQLite database file to use. (Will be created if it doesn't exist.)"]
+  (comp
+    (initialize-db :db-file db-file)
+    (with-pass-thru _
+      (api/start-server! 12345))))
+
 (deftask run
   "The `run` task wraps the building of your application in some
    useful tools for local development: an http server, a file watcher
    a ClojureScript REPL and a hot reloading mechanism"
   []
   (comp (serve)
+        (serve-backend :db-file "shows.db")
         (watch)
         (cljs-repl)
         ,,,
