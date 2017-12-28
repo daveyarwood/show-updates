@@ -12,10 +12,10 @@
 
 (defn episodes
   [ctx]
-  (db/query "SELECT name,season,number,airdate,summary,imageurl
-             FROM episodes
-             WHERE showid = ?"
-            [(get-in ctx [:parameters :query :showid])]))
+  (db/query ["SELECT name,season,number,airdate,summary,imageurl
+              FROM episode
+              WHERE showid = ?"
+             (get-in ctx [:parameters :query :showid])]))
 
 (defn show-search
   [ctx]

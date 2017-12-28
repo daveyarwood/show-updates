@@ -26,9 +26,7 @@
                                         {:body
                                          {:tvmazeid (rand-int 1000)}}}))
             (catch Throwable _
-              shows)))))
-    #_(doall (for [tvmazeid (repeatedly 10 #(rand-int 1000))]
-             (api/add-show! {:parameters {:body {:tvmazeid tvmazeid}}})))))
+              shows)))))))
 
 (comment
   (init!)
@@ -39,5 +37,5 @@
   (tv/show-search "Gilmore Girls")
   (api/shows {})
   (api/add-show! {:parameters {:body {:tvmazeid 955}}})
-  (api/episodes {:parameters {:query {:showid 805}}})
+  (api/episodes {:parameters {:query {:showid 543}}})
 )
