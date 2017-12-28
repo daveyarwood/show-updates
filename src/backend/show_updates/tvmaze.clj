@@ -35,8 +35,8 @@
     (:body x)
     (json/parse-string x)
     (for [episode x]
-      (select-keys episode ["season" "number" "airdate"
-                            "name" "summary" "image"]))))
+      (select-keys episode ["season" "number" "airdate" "name" "summary"
+                            "image"]))))
 
 (defn unwatched-episodes
   "Returns a list of episodes that have not been watched, given a bookmark
@@ -52,4 +52,6 @@
                  (let [air-date (f/parse (or airdate "1900-01-01"))]
                    (and (t/after? air-date bookmark)
                         (t/before? air-date (t/now))))))
-       (sort-by #(get % "airdate"))))
+       (sort-by #(get % "airdate"))
+       (map #(select-keys % ["name" "airdate" "season" "number" "summary"
+                             "image"]))))

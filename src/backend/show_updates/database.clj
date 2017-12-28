@@ -25,3 +25,9 @@
 (defn insert!
   [& args]
   (apply sql/insert! *db* args))
+
+(defmacro with-transaction
+  [& body]
+  `(sql/with-db-transaction [conn# *db*]
+     (binding [*db* conn#]
+       ~@body)))

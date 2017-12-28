@@ -15,9 +15,20 @@
 (defn seed-db!
   "Populates database with test data."
   []
-  (db/execute! "DELETE FROM show")
-  (doall (for [tvmazeid (repeatedly 10 #(rand-int 1000))]
-           (api/add-show! {:parameters {:body {:tvmazeid tvmazeid}}}))))
+  (db/with-transaction
+    (db/execute! "DELETE FROM show")
+    (loop [shows []]
+      (if (= 10 (count shows))
+        shows
+        (recur
+          (try
+            (conj shows (api/add-show! {:parameters
+                                        {:body
+                                         {:tvmazeid (rand-int 1000)}}}))
+            (catch Throwable _
+              shows)))))
+    #_(doall (for [tvmazeid (repeatedly 10 #(rand-int 1000))]
+             (api/add-show! {:parameters {:body {:tvmazeid tvmazeid}}})))))
 
 (comment
   (init!)
@@ -27,5 +38,6 @@
   (tv/show 73)
   (tv/show-search "Gilmore Girls")
   (api/shows {})
-  (api/add-show! {:parameters {:body {:tvmazeid 12345}}})
+  (api/add-show! {:parameters {:body {:tvmazeid 955}}})
+  (api/episodes {:parameters {:query {:showid 805}}})
 )

@@ -10,6 +10,13 @@
   [ctx]
   (db/query "SELECT name,tvmazeid,bookmark,imageurl FROM show"))
 
+(defn episodes
+  [ctx]
+  (db/query "SELECT name,season,number,airdate,summary,imageurl
+             FROM episodes
+             WHERE showid = ?"
+            [(get-in ctx [:parameters :query :showid])]))
+
 (defn show-search
   [ctx]
   (tv/show-search (get-in ctx [:parameters :query :query])))
@@ -18,14 +25,28 @@
   [{:keys [parameters] :as ctx}]
   (let [{:keys [tvmazeid]}                        (:body parameters)
         {:strs [id name summary premiered image]} (tv/show tvmazeid)
-        record {:tvmazeid id
-                :name     name
-                :summary  summary
-                :bookmark (-> (f/parse (or premiered "1900-02-01"))
-                              (t/minus (t/days 1)))
-                :imageurl (get image "medium")}]
-    (db/insert! :show record)
-    record))
+        bookmark (-> (f/parse (or premiered "1900-02-01"))
+                     (t/minus (t/days 1)))
+        show     {:tvmazeid id
+                  :name     name
+                  :summary  summary
+                  :bookmark bookmark
+                  :imageurl (get image "medium")}
+        episodes (->> (tv/unwatched-episodes id bookmark)
+                      (map
+                        (fn [{:strs [name airdate season number summary image]}]
+                          {:showid   id
+                           :name     name
+                           :airdate  airdate
+                           :season   season
+                           :number   number
+                           :summary  summary
+                           :imageurl (get image "medium")})))]
+    (db/with-transaction
+      (db/insert! :show show)
+      (doseq [episode episodes]
+        (db/insert! :episode episode)))
+    (assoc show :episodes episodes)))
 
 (defn public-resource
   "Returns a yada resource with CORS configured to allow access to all origins."
@@ -53,6 +74,13 @@
                          :consumes   "application/json"
                          :produces   "application/json"
                          :response   add-show!}}})]
+    ["/episodes"    (public-resource
+                      {:methods
+                       {:get
+                        {:parameters {:query {:showid Long}}
+                         :consumes   "application/json"
+                         :produces   "application/json"
+                         :response   episodes}}})]
     ]])
 
 (defn start-server!
