@@ -7,6 +7,16 @@
 
 (rf/reg-sub
   :shows
-  (fn [{:keys [data] :as db} _]
-    (:shows data)))
+  (fn [{:keys [shows] :as db} _]
+    shows))
+
+(rf/reg-sub
+  :show
+  (fn [{:keys [show] :as db} _]
+    show))
+
+(rf/reg-sub
+  :episodes
+  (fn [{:keys [show] :as db} _]
+    (:episodes show)))
 

@@ -8,7 +8,7 @@
 (defn init
   []
   (rf/dispatch-sync [:initialize])
-  (rf/dispatch [:load-data])
+  (rf/dispatch [:load-shows])
   (reagent/render-component
     [views/app-component]
     (.getElementById js/document "app")))
