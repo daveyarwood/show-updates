@@ -23,7 +23,7 @@
 
 (rf/reg-event-fx
   :load-show
-  (fn [db [_ {:keys [tvmazeid] :as show}]]
+  (fn [{:keys [db]} [_ {:keys [tvmazeid] :as show}]]
     {:db         (assoc db :loading? true
                            :show     show)
      :http-xhrio {:method          :get
@@ -38,9 +38,7 @@
 
 (rf/reg-event-db
   :process-shows
-  (fn [db [_ response]]
-    (js/console.log "process-shows response" (clj->js response))
-    (js/console.log (clj->js db))
+  (fn [{:keys [db]} [_ response]]
     (-> db
         (assoc :loading? false)
         (assoc :shows (js->clj response)))))
@@ -48,8 +46,6 @@
 (rf/reg-event-db
   :process-episodes
   (fn [db [_ response]]
-    (js/console.log "process-episodes response" (clj->js response))
-    (js/console.log (clj->js db))
     (-> db
         (assoc :loading? false)
         (assoc-in [:show :episodes] (js->clj response)))))

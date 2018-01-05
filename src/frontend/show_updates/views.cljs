@@ -2,6 +2,10 @@
   (:require [cljs.pprint   :refer (pprint)]
             [re-frame.core :as    rf]))
 
+(defn debug
+  [x]
+  (->> x pprint with-out-str (vector :pre)))
+
 (defn loading-component
   []
   [:em "Loading..."])
@@ -10,23 +14,20 @@
   []
   [:div
    [:h1 "ERROR"]
-   [:pre (-> @(rf/subscribe [:db])
-             :failure
-             pprint
-             with-out-str)]])
+   (let [{:keys [failure]} @(rf/subscribe [:db])]
+     (debug failure))])
 
 (defn shows-component
   []
-  [:div
-   (into
-     [:div]
-     (cons
-       [:h1 "Shows"]
-       (for [{:keys [name] :as show} @(rf/subscribe [:shows])]
-         [:div
-          [:a {:href "#"
-               :on-click #(rf/dispatch [:load-show show])}
-           name]])))])
+  (into
+    [:div]
+    (cons
+      [:h1 "Shows"]
+      (for [{:keys [name] :as show} @(rf/subscribe [:shows])]
+        [:div
+         [:a {:href "#"
+              :on-click #(rf/dispatch [:load-show show])}
+          name]]))))
 
 (defn show-component
   []
@@ -34,7 +35,7 @@
     [:div]
     (when-let [{:keys [name bookmark imageurl episodes]} @(rf/subscribe [:show])]
       [[:h1 name]
-       [:pre (with-out-str (pprint episodes))]])))
+       (debug episodes)])))
 
 (defn content-component
   []
