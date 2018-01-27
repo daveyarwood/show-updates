@@ -1,6 +1,8 @@
 (ns show-updates.views
-  (:require [cljs.pprint   :refer (pprint)]
-            [re-frame.core :as    rf]))
+  (:require [cljs.pprint        :refer (pprint)]
+            [goog.string        :refer (format)]
+            [goog.string.format]
+            [re-frame.core      :as    rf]))
 
 (defn debug
   [x]
@@ -33,9 +35,22 @@
   []
   (into
     [:div]
-    (when-let [{:keys [name bookmark imageurl episodes]} @(rf/subscribe [:show])]
-      [[:h1 name]
-       (debug episodes)])))
+    (when-let [{:keys [tvmazeid name bookmark imageurl episodes]}
+               @(rf/subscribe [:show])]
+      (cons
+        [:h2 name]
+        (for [{:keys [name season number airdate summary]} episodes]
+          [:div
+           [:div
+            [:a
+             {:href "#"
+              :on-click
+              #(if (js/confirm
+                     "Mark this episode (and all prior episodes) watched?")
+                 (rf/dispatch [:mark-watched tvmazeid airdate]))}
+             (format "S%02dE%02d: %s" season number name)]
+            [:p [:em "Airdate: " airdate]]
+            [:p {:dangerouslySetInnerHTML {:__html summary}}]]])))))
 
 (defn content-component
   []

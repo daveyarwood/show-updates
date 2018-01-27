@@ -48,10 +48,32 @@
         (db/insert! :episode episode)))
     (assoc show :episodes episodes)))
 
+(defn bookmark!
+  [{:keys [parameters] :as ctx}]
+  (let [{:keys [showid bookmark]} (:body parameters)
+        ;; Move bookmark to just after the airdate of the episode last watched.
+        bookmark (as-> bookmark ?
+                   (f/parse (f/formatter "yyyy-MM-dd") ?)
+                   (t/plus ? (t/hours 1)))]
+    (db/with-transaction
+      (db/execute! ["UPDATE show
+                     SET bookmark = ?
+                     WHERE tvmazeid = ?"
+                    bookmark
+                    showid])
+      (db/execute! ["DELETE FROM episode
+                      WHERE showid = ?
+                        AND airdate <= date(?)"
+                    showid
+                    ;; YYYY-MM-DD format is required by SQLite.
+                    (f/unparse (f/formatter "yyyy-MM-dd") bookmark)]))
+    {:result "Bookmark successfully set."}))
+
 (defn public-resource
   "Returns a yada resource with CORS configured to allow access to all origins."
   [m]
-  (yada/resource (merge m {:access-control {:allow-origin "*"}})))
+  (yada/resource (merge m {:access-control {:allow-origin  "*"
+                                            :allow-headers "*"}})))
 
 (def routes
   [""
@@ -81,6 +103,14 @@
                          :consumes   "application/json"
                          :produces   "application/json"
                          :response   episodes}}})]
+    ["/bookmark"    (public-resource
+                      {:methods
+                       {:post
+                        {:parameters {:body {:showid   Long
+                                             :bookmark String}}
+                         :consumes   "application/json"
+                         :produces   "application/json"
+                         :response   bookmark!}}})]
     ]])
 
 (defn start-server!

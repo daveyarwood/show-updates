@@ -36,6 +36,21 @@
                   :on-success      [:process-episodes]
                   :on-failure      [:bad-response]}}))
 
+(rf/reg-event-fx
+  :mark-watched
+  (fn [{:keys [db]} [_ tvmazeid airdate]]
+    {:db         (assoc db :loading? true)
+     :http-xhrio {:method          :post
+                  ;; TODO: load server location from environment
+                  :uri             "http://localhost:12345/bookmark"
+                  :params          {:showid   tvmazeid
+                                    :bookmark airdate}
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format
+                                     {:keywords? true})
+                  :on-success      [:load-show {:tvmazeid tvmazeid}]
+                  :on-failure      [:bad-response]}}))
+
 (rf/reg-event-db
   :process-shows
   (fn [{:keys [db]} [_ response]]
