@@ -7,7 +7,7 @@
                     [clj-http                  "3.7.0"                  ]
                     [com.cemerick/piggieback   "0.2.2"     :scope "test"]
                     [day8.re-frame/http-fx     "0.1.4"                  ]
-                    [migratus                  "1.0.2"                  ]
+                    [migratus                  "1.0.3"                  ]
                     [org.clojure/clojure       "1.9.0"                  ]
                     [org.clojure/clojurescript "1.9.946"                ]
                     [org.clojure/tools.nrepl   "0.2.13"    :scope "test"]
@@ -15,9 +15,9 @@
                     [org.xerial/sqlite-jdbc    "3.21.0.1"               ]
                     [pandeiro/boot-http        "0.8.3"     :scope "test"]
                     [reagent                   "0.8.0-alpha2"           ]
-                    [re-frame                  "0.10.3-beta1"           ]
+                    [re-frame                  "0.10.3"                 ]
                     [weasel                    "0.7.0"     :scope "test"]
-                    [yada                      "1.2.9"                  ]])
+                    [yada                      "1.2.10"                 ]])
 
 (require
   '[adzerk.boot-cljs      :refer (cljs)]
