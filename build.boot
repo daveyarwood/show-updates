@@ -7,7 +7,7 @@
                     [clj-http                  "3.7.0"                  ]
                     [com.cemerick/piggieback   "0.2.2"     :scope "test"]
                     [day8.re-frame/http-fx     "0.1.4"                  ]
-                    [migratus                  "1.0.3"                  ]
+                    [migratus                  "1.0.2"                  ]
                     [org.clojure/clojure       "1.9.0"                  ]
                     [org.clojure/clojurescript "1.9.946"                ]
                     [org.clojure/tools.nrepl   "0.2.13"    :scope "test"]
