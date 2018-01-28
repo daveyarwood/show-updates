@@ -69,41 +69,48 @@
                     (f/unparse (f/formatter "yyyy-MM-dd") bookmark)]))
     {:result "Bookmark successfully set."}))
 
-(defn public-resource
-  "Returns a yada resource with CORS configured to allow access to all origins."
+(defn resource
+  "Returns a yada resource with some common configuration:
+   - CORS configured to allow access to all origins
+   - Server errors returned as JSON in the event of a 500."
   [m]
-  (yada/resource (merge m {:access-control {:allow-origin  "*"
-                                            :allow-headers "*"}})))
+  (yada/resource
+    (merge m {:access-control {:allow-origin  "*"
+                               :allow-headers "*"}
+              :responses {500 {:description "Server error"
+                               :produces "application/json"
+                               :response (fn [{:keys [error] :as ctx}]
+                                           {:error error})}}})))
 
 (def routes
   [""
    [
-    ["/shows"       (public-resource
+    ["/shows"       (resource
                       {:methods
                        {:get
                         {:produces "application/json"
                          :response shows}}})]
-    ["/show-search" (public-resource
+    ["/show-search" (resource
                       {:methods
                        {:get
                         {:parameters {:query {:query String}}
                          :produces "application/json"
                          :response show-search}}})]
-    ["/add-show"    (public-resource
+    ["/add-show"    (resource
                       {:methods
                        {:post
                         {:parameters {:body {:tvmazeid Long}}
                          :consumes   "application/json"
                          :produces   "application/json"
                          :response   add-show!}}})]
-    ["/episodes"    (public-resource
+    ["/episodes"    (resource
                       {:methods
                        {:get
                         {:parameters {:query {:showid Long}}
                          :consumes   "application/json"
                          :produces   "application/json"
                          :response   episodes}}})]
-    ["/bookmark"    (public-resource
+    ["/bookmark"    (resource
                       {:methods
                        {:post
                         {:parameters {:body {:showid   Long
