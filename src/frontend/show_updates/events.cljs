@@ -6,7 +6,15 @@
 (rf/reg-event-db
   :initialize
   (fn [_ _]
-    {:shows []}))
+    {:shows []
+     :add-show-form {:form-visible? false}}))
+
+(rf/reg-event-db
+  :bad-response
+  (fn [db [_ response]]
+    (-> db
+        (assoc :loading? false)
+        (assoc :failure (js->clj response)))))
 
 (rf/reg-event-fx
   :load-shows
@@ -51,6 +59,34 @@
                   :on-success      [:load-show {:tvmazeid tvmazeid}]
                   :on-failure      [:bad-response]}}))
 
+(rf/reg-event-fx
+  :show-search
+  (fn [{:keys [db]} [_ query]]
+    {:db         (assoc-in db [:add-show-form :query] query)
+     :http-xhrio {:method          :get
+                  ;; TODO: load server location from environment
+                  :uri             "http://localhost:12345/show-search"
+                  :params          {:query query}
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format
+                                     {:keywords? true})
+                  :on-success      [:process-search-results]
+                  :on-failure      [:bad-response]}}))
+
+(rf/reg-event-fx
+  :add-show
+  (fn [{:keys [db]} [_ tvmazeid]]
+    {:db         db
+     :http-xhrio {:method          :post
+                  ;; TODO: load server location from environment
+                  :uri             "http://localhost:12345/add-show"
+                  :params          {:tvmazeid tvmazeid}
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format
+                                     {:keywords? true})
+                  :on-success      [:process-add-show-success]
+                  :on-failure      [:bad-response]}}))
+
 (rf/reg-event-db
   :process-shows
   (fn [{:keys [db]} [_ response]]
@@ -66,9 +102,28 @@
         (assoc-in [:show :episodes] (js->clj response)))))
 
 (rf/reg-event-db
-  :bad-response
+  :process-search-results
   (fn [db [_ response]]
     (-> db
-        (assoc :loading? false)
-        (assoc :failure (js->clj response)))))
+        (assoc-in [:add-show-form :search-results] (js->clj response)))))
+
+(rf/reg-event-db
+  :process-add-show-success
+  (fn [db [_ {:keys [name] :as response}]]
+    (rf/dispatch [:load-shows])
+    (assoc
+      db
+      :add-show-form
+      {:form-visible? false
+       :success-message (str name " added to shows.")})))
+
+(rf/reg-event-db
+  :display-add-show-form
+  (fn [db _]
+    (assoc-in db [:add-show-form :form-visible?] true)))
+
+(rf/reg-event-db
+  :hide-add-show-form
+  (fn [db _]
+    (assoc-in db [:add-show-form :form-visible?] false)))
 

@@ -19,6 +19,39 @@
    (let [{:keys [failure]} @(rf/subscribe [:db])]
      (debug failure))])
 
+(defn add-show-component
+  []
+  [:div
+   (let [{:keys [form-visible? search-results query]}
+         @(rf/subscribe [:add-show-form])]
+     (if-not form-visible?
+       [:a {:href "#"
+            :on-click #(rf/dispatch [:display-add-show-form])}
+        "add show"]
+
+       [:div
+        [:a {:href "#"
+             :on-click #(rf/dispatch [:hide-add-show-form])}
+         "(hide)"]
+        [:form
+         [:h1 "Add Show"]
+         [:label {:for "show-search"} "Title"]
+         [:input {:type "text"
+                  :value query
+                  :on-change #(rf/dispatch [:show-search
+                                            (-> % .-target .-value)])}]]
+        (into
+          [:div]
+          (for [{:keys [id name summary image]} search-results]
+            (let [img-url (:medium image)]
+              [:div
+               [:a {:href "#"
+                    :on-click #(if (js/confirm (format "Add %s to shows?" name))
+                                 (rf/dispatch [:add-show id]))}
+                [:h2 name]
+                [:img {:src img-url}]]
+               [:p {:dangerouslySetInnerHTML {:__html summary}}]])))]))])
+
 (defn shows-component
   []
   (into
@@ -55,6 +88,7 @@
 (defn content-component
   []
   [:div
+   [add-show-component]
    [shows-component]
    [show-component]])
 

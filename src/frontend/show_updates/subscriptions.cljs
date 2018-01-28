@@ -20,3 +20,7 @@
   (fn [{:keys [show] :as db} _]
     (:episodes show)))
 
+(rf/reg-sub
+  :add-show-form
+  (fn [{:keys [add-show-form] :as db} _]
+    add-show-form))

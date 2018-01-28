@@ -91,7 +91,7 @@
                          :response show-search}}})]
     ["/add-show"    (public-resource
                       {:methods
-                       {:put
+                       {:post
                         {:parameters {:body {:tvmazeid Long}}
                          :consumes   "application/json"
                          :produces   "application/json"
