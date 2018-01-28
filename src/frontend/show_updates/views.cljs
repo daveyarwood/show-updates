@@ -95,6 +95,12 @@
 (defn app-component
   []
   [:div
+   (when-let [success-message @(rf/subscribe [:success-message])]
+     [:div {:class "success"}
+      success-message
+      [:input  {:type    "button"
+               :value    "ok"
+               :on-click #(rf/dispatch [:clear-success-message])}]])
    (let [{:keys [loading? failure]} @(rf/subscribe [:db])]
      (cond
        loading? [loading-component]

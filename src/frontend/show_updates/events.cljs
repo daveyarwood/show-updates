@@ -113,9 +113,9 @@
     (rf/dispatch [:load-shows])
     (assoc
       db
-      :add-show-form
-      {:form-visible? false
-       :success-message (str name " added to shows.")})))
+      :success-message (str name " added to shows.")
+      :shows           []
+      :add-show-form   {:form-visible? false})))
 
 (rf/reg-event-db
   :display-add-show-form
@@ -127,3 +127,7 @@
   (fn [db _]
     (assoc-in db [:add-show-form :form-visible?] false)))
 
+(rf/reg-event-db
+  :clear-success-message
+  (fn [db _]
+    (dissoc db :success-message)))

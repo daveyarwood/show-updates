@@ -7,8 +7,11 @@
             [yada.yada             :as yada]))
 
 (defn shows
+  "Returns shows with at least one unwatched episode."
   [ctx]
-  (db/query "SELECT name,tvmazeid,bookmark,imageurl FROM show"))
+  (db/query "SELECT DISTINCT s.name,s.tvmazeid,s.bookmark,s.imageurl
+             FROM show AS s
+             INNER JOIN episode AS e ON e.showid = s.tvmazeid"))
 
 (defn episodes
   [ctx]

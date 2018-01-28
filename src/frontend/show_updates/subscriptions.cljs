@@ -24,3 +24,8 @@
   :add-show-form
   (fn [{:keys [add-show-form] :as db} _]
     add-show-form))
+
+(rf/reg-sub
+  :success-message
+  (fn [{:keys [success-message] :as db} _]
+    success-message))
